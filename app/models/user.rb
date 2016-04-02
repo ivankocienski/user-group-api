@@ -12,4 +12,13 @@ class User < ActiveRecord::Base
   validates_format_of :email, :with => EMAIL_REGEX
   validates :email, uniqueness: true
 
+  #
+  # username
+  #
+
+  validates :username, 
+    length: { in: 3..100 }, 
+    format: { with: /\A\w+\Z/, message: 'Contains bad characters' },
+    presence: true
+
 end
