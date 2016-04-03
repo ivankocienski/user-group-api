@@ -6,11 +6,11 @@ class UserAuthToken < ActiveRecord::Base
   RENEW_TIME  = 2.hours
 
   def expired?
-    created_at <= EXPIRE_TIME.ago
+    created_at < EXPIRE_TIME.ago
   end 
 
   def renewable?
-    created_at <= RENEW_TIME.ago
+    created_at > RENEW_TIME.ago
   end
 
   def self.generate(user)

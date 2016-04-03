@@ -23,14 +23,14 @@ RSpec.describe UserAuthToken, type: :model do
   end
 
   context '#renewable?' do
-    it 'is false if record is new' do
+    it 'is true if record is new' do
       at = UserAuthToken.create
-      expect(at.renewable?).to be_falsey
+      expect(at.renewable?).to be_truthy
     end
 
-    it 'is true if record is too old' do
+    it 'is false if record is too old' do
       at = UserAuthToken.create(created_at: (UserAuthToken::RENEW_TIME + 10).hours.ago)
-      expect(at.renewable?).to be_truthy
+      expect(at.renewable?).to be_falsey
     end
   end
 
