@@ -8,7 +8,7 @@ class Api::V1::UsersController < Api::V1::BaseController
       user: {
         username: @user.username,
         email: @user.email },
-      groups: []}
+      groups: @user.groups.order(:name).map { |g| { id: g.id, name: g.name } }}
 
     render json: payload
   end

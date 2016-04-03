@@ -63,18 +63,32 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       at
     }
 
-    it 'returns user details' do
-      payload = {
-        api_token: auth_token.token,
-        format: :json }
+    let(:payload) {{
+      api_token: auth_token.token,
+      format: :json }}
 
+    it 'returns user details' do 
       get :show, payload
       expect(response).to be_success
       
       data = JSON.parse(response.body)
       expect(data['user']['username']).to eq(user.username)
-      expect(data['user']['email']).to eq(user.email)
+      expect(data['user']['email']).to eq(user.email) 
+    end
 
+    it 'includes list of groups' do
+      g1 = Group.create(name: 'beta')
+      g2 = Group.create(name: 'alpha')
+
+      user.groups << g1
+      user.groups << g2
+
+      get :show, payload
+      data = JSON.parse(response.body)
+
+      expect(data['groups']).to eq([
+        { 'id' => g2.id, 'name' => g2.name },
+        { 'id' => g1.id, 'name' => g1.name }]) 
     end
   end
 end
