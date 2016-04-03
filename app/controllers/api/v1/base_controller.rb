@@ -1,6 +1,7 @@
 class Api::V1::BaseController < ActionController::Base
 
   
+  
   respond_to :json
 
   private
@@ -9,11 +10,11 @@ class Api::V1::BaseController < ActionController::Base
     token = params[:api_token]
     return if token.nil?
 
-    auth = UserAuthToken.where(token: token).first
-    return if auth.nil?
+    @auth = UserAuthToken.where(token: token).first
+    return if @auth.nil?
 
     # expired?
-    @user = auth.user
+    @user = @auth.user
   end
   
   def user_must_be_logged_in
