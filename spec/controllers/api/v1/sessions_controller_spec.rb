@@ -21,18 +21,26 @@ RSpec.describe Api::V1::SessionsController, type: :controller do
           },
           format: :json }
 
-        post :create, payload
-
+        post :create, payload 
         expect(response).to be_success
         
         data = JSON.parse(response.body)
         expect(data['token']).to be_a(String)
-      end
-
+      end 
     end
 
     context 'with invalid credentials' do
-      it 'responds appropriately'
+      it 'responds appropriately' do
+
+        payload = {
+          format: :json }
+
+        post :create, payload 
+        expect(response.status).to eq(401)
+        
+        data = JSON.parse(response.body)
+        expect(data['message']).to eq('Authorization failed')
+      end
     end
   end
 
