@@ -1,5 +1,18 @@
 class Api::V1::UsersController < Api::V1::BaseController
 
+  before_filter :find_user_from_token
+  before_filter :user_must_be_logged_in, only: %i{ show }
+
+  def show
+    payload = {
+      user: {
+        username: @user.username,
+        email: @user.email },
+      groups: []}
+
+    render json: payload
+  end
+
   def create
     user_params = params[:user] || {}
 

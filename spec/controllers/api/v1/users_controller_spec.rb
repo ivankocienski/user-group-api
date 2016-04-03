@@ -26,7 +26,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
         data = JSON.parse(response.body)
         expect(data['user']['id']).to be_a(Integer) 
       end
-    end 
+    end # with valid input
 
     context 'with invalid data' do
       let(:payload) {
@@ -46,7 +46,35 @@ RSpec.describe Api::V1::UsersController, type: :controller do
         expect(data['message']).to eq('Failed to create user')
         expect(data).to have_key('errors')
       end
-    end
+    end # with invalid data
+  end # create 
 
-  end 
+  context 'show' do
+    let(:user) { 
+      User.create do |u|
+        u.username = 'username'
+        u.email    = 'user@example.com'
+        u.password = 'password'
+      end
+    }
+    let(:auth_token) {
+      at = UserAuthToken.generate(user)
+      at.save
+      at
+    }
+
+    it 'returns user details' do
+      payload = {
+        api_token: auth_token.token,
+        format: :json }
+
+      get :show, payload
+      expect(response).to be_success
+      
+      data = JSON.parse(response.body)
+      expect(data['user']['username']).to eq(user.username)
+      expect(data['user']['email']).to eq(user.email)
+
+    end
+  end
 end
