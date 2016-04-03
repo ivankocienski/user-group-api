@@ -6,7 +6,9 @@ Rails.application.routes.draw do
 
       resource :session, only: %i{ create }
 
-      resources :groups, only: %i{ create }
+      resources :groups, only: %i{ create } do
+        resources :users, only: %i{ create }, controller: 'group_users'
+      end
     end
   end
 
