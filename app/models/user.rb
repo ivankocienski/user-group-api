@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
-    #
+
+  #
   # email stuff
   #
 
