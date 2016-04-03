@@ -4,16 +4,17 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
 
   let(:group) { Group.create(name: 'name') }
 
-  let(:user) { 
+  let(:admin) { 
     User.create do |u|
       u.username = 'username'
       u.email    = 'user@example.com'
       u.password = 'password'
+      u.admin    = true
     end
   }
 
   let(:auth_token) {
-    at = UserAuthToken.generate(user)
+    at = UserAuthToken.generate(admin)
     at.save
     at
   }
@@ -62,7 +63,7 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
 
         payload = {
           group_id: group.id,
-          user: { id: user.id },
+          user: { id: admin.id },
           format: :json,
           api_token: auth_token.token }
 
@@ -94,11 +95,11 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
       context 'for group' do
         it 'gets rejected' do
 
-          user.groups << group
+          admin.groups << group
 
           payload = {
             group_id: group.id,
-            user: { id: user.id },
+            user: { id: admin.id },
             format: :json,
             api_token: auth_token.token }
 

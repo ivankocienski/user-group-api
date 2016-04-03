@@ -2,16 +2,17 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::GroupsController, type: :controller do
 
-  let(:user) { 
+  let(:admin) { 
     User.create do |u|
       u.username = 'username'
       u.email    = 'user@example.com'
       u.password = 'password'
+      u.admin    = true
     end
   }
     
   let(:auth_token) {
-    at = UserAuthToken.generate(user)
+    at = UserAuthToken.generate(admin)
     at.save
     at
   }
