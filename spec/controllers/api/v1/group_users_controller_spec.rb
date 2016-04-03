@@ -4,6 +4,20 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
 
   let(:group) { Group.create(name: 'name') }
 
+  let(:user) { 
+    User.create do |u|
+      u.username = 'username'
+      u.email    = 'user@example.com'
+      u.password = 'password'
+    end
+  }
+
+  let(:auth_token) {
+    at = UserAuthToken.generate(user)
+    at.save
+    at
+  }
+
   context 'before filters' do
     context 'find_group' do
 
@@ -18,7 +32,8 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
       it 'sets up @group' do
         payload = {
           group_id: group.id,
-          format: :json }
+          format: :json,
+          api_token: auth_token.token }
 
         get :index, payload
         expect(response).to be_success
@@ -28,7 +43,8 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
       it 'reports if group not found' do
         payload = {
           group_id: 1234,
-          format: :json }
+          format: :json,
+          api_token: auth_token.token }
 
         get :index, payload
         expect(response.status).to eq(422) # unprocessible entity
@@ -44,15 +60,11 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
     context 'with valid input' do
       it 'creates link and responds sucessfully' do
 
-        user = User.create(
-          username: 'username',
-          password: 'password',
-          email:    'user@example.com')
-
         payload = {
           group_id: group.id,
           user: { id: user.id },
-          format: :json }
+          format: :json,
+          api_token: auth_token.token }
 
         expect {
           post :create, payload
@@ -68,7 +80,8 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
           payload = {
             group_id: group.id,
             user: { id: 1234 },
-            format: :json }
+            format: :json,
+            api_token: auth_token.token }
 
           post :create, payload 
           expect(response.status).to eq(422) # unprocessable
@@ -81,17 +94,13 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
       context 'for group' do
         it 'gets rejected' do
 
-          user = User.create(
-            username: 'username',
-            password: 'password',
-            email:    'user@example.com')
-
           user.groups << group
 
           payload = {
             group_id: group.id,
             user: { id: user.id },
-            format: :json }
+            format: :json,
+            api_token: auth_token.token }
 
           post :create, payload
           expect(response.status).to eq(422) # unprocessable

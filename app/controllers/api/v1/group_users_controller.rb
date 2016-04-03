@@ -1,5 +1,7 @@
 class Api::V1::GroupUsersController < Api::V1::BaseController
 
+  before_filter :find_user_from_token
+  before_filter :user_must_be_logged_in
   before_filter :find_group
   
   def create
