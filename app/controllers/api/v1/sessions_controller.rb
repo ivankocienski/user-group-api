@@ -10,6 +10,7 @@ class Api::V1::SessionsController < ApplicationController
     end
 
     token = UserAuthToken.generate(user)
+    token.save
 
     render json: { token: token.token } 
   end

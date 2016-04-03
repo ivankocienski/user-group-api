@@ -1,5 +1,7 @@
 class UserAuthToken < ActiveRecord::Base
 
+  belongs_to :user
+
   EXPIRE_TIME = 1.hours
   RENEW_TIME  = 2.hours
 
