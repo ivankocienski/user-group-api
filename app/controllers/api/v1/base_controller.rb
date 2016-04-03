@@ -22,5 +22,11 @@ class Api::V1::BaseController < ActionController::Base
     render status: 401, json: { message: 'Missing api_token' }
   end
 
+  def user_must_be_admin
+    return if @user.admin
+
+    render status: 401, json: { message: 'Only admins can perform that action' } 
+  end
+
 end
 

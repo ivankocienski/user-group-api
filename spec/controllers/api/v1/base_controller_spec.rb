@@ -10,6 +10,15 @@ RSpec.describe Api::V1::BaseController, type: :controller do
     end
   }
 
+  let(:admin) { 
+    User.create do |u|
+      u.username = 'username'
+      u.email    = 'user@example.com'
+      u.password = 'password'
+      u.admin    = true
+    end
+  }
+
   context 'basic response' do
     controller do
 
@@ -100,6 +109,45 @@ RSpec.describe Api::V1::BaseController, type: :controller do
       end
 
     end # user_must_be_logged_in
+
+    context 'user_must_be_admin' do
+      controller do
+        before_filter :find_user_from_token
+        before_filter :user_must_be_logged_in
+        before_filter :user_must_be_admin
+
+        def index
+          render text: ''
+        end
+      end
+
+      it 'rejects non admin users' do
+        token = UserAuthToken.generate(user)
+        token.save
+
+        payload = {
+          api_token: token.token,
+          format: :json }
+
+        get :index, payload
+        expect(response.status).to eq(401) # forbidden
+
+        data = JSON.parse(response.body)
+        expect(data['message']).to eq('Only admins can perform that action')
+      end
+
+      it 'accepts admdin users' do
+        token = UserAuthToken.generate(admin)
+        token.save
+
+        payload = {
+          api_token: token.token,
+          format: :json }
+
+        get :index, payload
+        expect(response).to be_success 
+      end
+    end
 
   end # before filter
 
