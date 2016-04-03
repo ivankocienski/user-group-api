@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160403191112) do
+ActiveRecord::Schema.define(version: 20160403222522) do
 
   create_table "groups", force: :cascade do |t|
     t.string   "name"
@@ -40,8 +40,9 @@ ActiveRecord::Schema.define(version: 20160403191112) do
     t.string   "email"
     t.string   "password_encrypted"
     t.string   "password_salt"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.boolean  "admin",              default: false
   end
 
 end
