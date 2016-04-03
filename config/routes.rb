@@ -5,6 +5,8 @@ Rails.application.routes.draw do
       resource :user, only: %i{ create show } 
 
       resource :session, only: %i{ create }
+
+      resources :groups, only: %i{ create }
     end
   end
 
