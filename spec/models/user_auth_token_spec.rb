@@ -26,4 +26,18 @@ RSpec.describe UserAuthToken, type: :model do
     end
   end
 
+  context '::generate' do
+    it 'generates a token' do
+      at = UserAuthToken.generate
+      expect(at.token).not_to be_empty
+    end
+
+    it 'token is unique' do
+      at1 = UserAuthToken.generate
+      at2 = UserAuthToken.generate
+
+      expect(at1.token).not_to eq(at2.token)
+    end
+  end
+
 end
