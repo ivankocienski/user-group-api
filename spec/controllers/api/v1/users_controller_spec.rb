@@ -28,6 +28,25 @@ RSpec.describe Api::V1::UsersController, type: :controller do
       end
     end 
 
-    it 'rejects user with invalid input'
+    context 'with invalid data' do
+      let(:payload) {
+        { format: :json }}
+
+      it 'does not create user' do
+        expect {
+          post :create, payload
+        }.not_to change(User, :count)
+      end
+
+      it 'gives meaningful feedback' do
+        post :create, payload
+        expect(response.status).to eq(422)
+
+        data = JSON.parse(response.body)
+        expect(data['message']).to eq('Failed to create user')
+        expect(data).to have_key('errors')
+      end
+    end
+
   end 
 end
