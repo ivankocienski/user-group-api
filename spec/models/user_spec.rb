@@ -131,5 +131,19 @@ RSpec.describe User, type: :model do
     end
   end
 
+  context 'groups' do
+    it 'can be assigned to users and retrieved' do
+      user = User.create(
+        username: 'username',
+        password: 'password',
+        email:    'user@example.com')
+
+      g = Group.create(name: 'group')
+      user.groups << g
+
+      expect(user.groups).to eq([g])
+    end
+  end
+
 end
 

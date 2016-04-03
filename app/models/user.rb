@@ -46,4 +46,11 @@ class User < ActiveRecord::Base
     nil 
   end
 
+  #
+  # group stuff
+  #
+
+  has_many :user_groups
+  has_many :groups, through: :user_groups
+
 end
