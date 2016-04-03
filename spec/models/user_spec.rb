@@ -132,16 +132,27 @@ RSpec.describe User, type: :model do
   end
 
   context 'groups' do
-    it 'can be assigned to users and retrieved' do
-      user = User.create(
+    let(:user) {
+      User.create(
         username: 'username',
         password: 'password',
         email:    'user@example.com')
+    }
 
-      g = Group.create(name: 'group')
-      user.groups << g
+    let(:group) { Group.create(name: 'group') }
 
-      expect(user.groups).to eq([g])
+    it 'can be assigned to users and retrieved' do 
+      user.groups << group 
+      expect(user.groups).to eq([group])
+    end
+
+    it 'must be unique' do
+      expect {
+        user.groups << group
+        user.groups << group
+      }.to raise_error(ActiveRecord::RecordInvalid)
+
+      expect(user.groups.count).to eq(1)
     end
   end
 
