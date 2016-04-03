@@ -2,6 +2,14 @@ require 'rails_helper'
 
 RSpec.describe UserAuthToken, type: :model do
 
+  let(:user) { 
+    User.create do |u|
+      u.username = 'username'
+      u.email    = 'user@example.com'
+      u.password = 'password'
+    end
+  }
+
   context '#expired?' do
     it 'is false if record is new' do
       at = UserAuthToken.create
@@ -27,14 +35,20 @@ RSpec.describe UserAuthToken, type: :model do
   end
 
   context '::generate' do
+    
     it 'generates a token' do
-      at = UserAuthToken.generate
+      at = UserAuthToken.generate(user)
       expect(at.token).not_to be_empty
     end
 
+    it 'assigns user ID' do
+      at = UserAuthToken.generate(user)
+      expect(at.user_id).to eq(user.id) 
+    end
+
     it 'token is unique' do
-      at1 = UserAuthToken.generate
-      at2 = UserAuthToken.generate
+      at1 = UserAuthToken.generate(user)
+      at2 = UserAuthToken.generate(user)
 
       expect(at1.token).not_to eq(at2.token)
     end

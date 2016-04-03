@@ -11,9 +11,10 @@ class UserAuthToken < ActiveRecord::Base
     created_at <= RENEW_TIME.ago
   end
 
-  def self.generate
+  def self.generate(user)
     new do |at|
       at.token = Digest::SHA1.hexdigest("#{Random.rand(999999)}-#{Date.today}-user-group-api")
+      at.user_id = user.id
     end
   end
   
