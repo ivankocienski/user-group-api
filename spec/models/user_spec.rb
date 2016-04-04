@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
+
+  include CommonLettings
+
   context 'email' do
     it 'must be set' do
       u = User.new
@@ -37,11 +40,7 @@ RSpec.describe User, type: :model do
   context 'username' do
     it 'can be saved' do
       expect {
-        User.create do |u|
-          u.email    = 'user@example.com'
-          u.username = 'user'
-          u.password = 'password'
-        end
+        new_user.save
       }.to change( User, :count ).by(1)
 
       User.first.tap do |u|
@@ -50,7 +49,7 @@ RSpec.describe User, type: :model do
     end
 
     it 'must be valid' do
-      u = User.new( email: 'user@example.com' )
+      u = new_user
 
       # ni;
       u.username = ''
@@ -81,28 +80,17 @@ RSpec.describe User, type: :model do
     end
   end
 
-  context 'password' do
-
-    def make_user( args = {} )
-      User.new do |u|
-        u.email    = args[:email] || 'user@eample.com'
-        u.username = args[:username] || 'auser'
-        u.password = args[:password] || 'passwordpassword'
-      end
-    end
-
+  context 'password' do 
     context 'setting' do
       it 'must be present' do
-        u = User.new
-        u.email    = 'user@eample.com'
-        u.username = 'auserdisplayname'
+        u = new_user( password: '' )
 
         expect(u.valid?).to be_falsey
         expect(u.errors).to have_key(:password)
       end
 
       it 'is salted and saved in DB' do
-        user = make_user( password: '12345', password_confirmation: '12345' )
+        user = new_user( password: '12345' )
 
         user.save
         user.reload
@@ -114,15 +102,8 @@ RSpec.describe User, type: :model do
     end
 
     context 'verifying' do
-      let(:user) { make_user( password: '12345' ) }
-
-      before :each do
-        user.save
-        user.reload
-      end
-
       it 'correct positive' do 
-        expect( user.test_password('12345') ).to be true
+        expect(user.test_password('passwordpassword')).to be true
       end
 
       it 'correct negative' do 
@@ -131,16 +112,7 @@ RSpec.describe User, type: :model do
     end
   end
 
-  context 'groups' do
-    let(:user) {
-      User.create(
-        username: 'username',
-        password: 'password',
-        email:    'user@example.com')
-    }
-
-    let(:group) { Group.create(name: 'group') }
-
+  context 'groups' do 
     it 'can be assigned to users and retrieved' do 
       user.groups << group 
       expect(user.groups).to eq([group])
