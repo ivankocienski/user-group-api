@@ -2,26 +2,10 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::BaseController, type: :controller do
 
-  let(:user) { 
-    User.create do |u|
-      u.username = 'username'
-      u.email    = 'user@example.com'
-      u.password = 'password'
-    end
-  }
-
-  let(:admin) { 
-    User.create do |u|
-      u.username = 'username'
-      u.email    = 'user@example.com'
-      u.password = 'password'
-      u.admin    = true
-    end
-  }
+  include CommonLettings
 
   context 'basic response' do
     controller do
-
       def index
         payload = { message: 'Hello, world' }
         respond_with payload
@@ -48,17 +32,14 @@ RSpec.describe Api::V1::BaseController, type: :controller do
     end
     
     it 'yields control with valid token' do
-      token = UserAuthToken.generate(user)
-      token.save
-
       payload = {
-        api_token: token.token,
+        api_token: user_auth_token.token,
         format: :json }
 
       get :index, payload
 
       expect(response).to be_success
-      expect(assigns[:token]).to eq(token)
+      expect(assigns[:token]).to eq(user_auth_token)
     end
 
     it 'rejects missing token' do 
@@ -118,12 +99,8 @@ RSpec.describe Api::V1::BaseController, type: :controller do
 
       context 'with token' do
         it 'passes control' do
-
-          token = UserAuthToken.generate(user)
-          token.save
-
           payload = {
-            api_token: token.token,
+            api_token: user_auth_token.token,
             format: :json }
 
           get :index, payload
@@ -144,11 +121,8 @@ RSpec.describe Api::V1::BaseController, type: :controller do
       end
 
       it 'rejects non admin users' do
-        token = UserAuthToken.generate(user)
-        token.save
-
         payload = {
-          api_token: token.token,
+          api_token: user_auth_token.token,
           format: :json }
 
         get :index, payload
@@ -159,11 +133,8 @@ RSpec.describe Api::V1::BaseController, type: :controller do
       end
 
       it 'accepts admdin users' do
-        token = UserAuthToken.generate(admin)
-        token.save
-
         payload = {
-          api_token: token.token,
+          api_token: admin_auth_token.token,
           format: :json }
 
         get :index, payload
