@@ -2,22 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::GroupUsersController, type: :controller do
 
-  let(:group) { Group.create(name: 'name') }
-
-  let(:admin) { 
-    User.create do |u|
-      u.username = 'username'
-      u.email    = 'user@example.com'
-      u.password = 'password'
-      u.admin    = true
-    end
-  }
-
-  let(:auth_token) {
-    at = UserAuthToken.generate(admin)
-    at.save
-    at
-  }
+  include CommonLettings
 
   context 'before filters' do
     context 'find_group' do
@@ -34,7 +19,7 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
         payload = {
           group_id: group.id,
           format: :json,
-          api_token: auth_token.token }
+          api_token: admin_auth_token.token }
 
         get :index, payload
         expect(response).to be_success
@@ -45,7 +30,7 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
         payload = {
           group_id: 1234,
           format: :json,
-          api_token: auth_token.token }
+          api_token: admin_auth_token.token }
 
         get :index, payload
         expect(response.status).to eq(422) # unprocessible entity
@@ -65,7 +50,7 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
           group_id: group.id,
           user: { id: admin.id },
           format: :json,
-          api_token: auth_token.token }
+          api_token: admin_auth_token.token }
 
         expect {
           post :create, payload
@@ -82,7 +67,7 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
             group_id: group.id,
             user: { id: 1234 },
             format: :json,
-            api_token: auth_token.token }
+            api_token: admin_auth_token.token }
 
           post :create, payload 
           expect(response.status).to eq(422) # unprocessable
@@ -101,7 +86,7 @@ RSpec.describe Api::V1::GroupUsersController, type: :controller do
             group_id: group.id,
             user: { id: admin.id },
             format: :json,
-            api_token: auth_token.token }
+            api_token: admin_auth_token.token }
 
           post :create, payload
           expect(response.status).to eq(422) # unprocessable
