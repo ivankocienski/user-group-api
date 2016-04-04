@@ -60,23 +60,6 @@ RSpec.describe Api::V1::SessionsController, type: :controller do
         expect(data['api_token']).to be_a(String)
       end
     end # with active token
-
-    context 'with expired token' do
-      it 'rejects request' do
-        auth = UserAuthToken.generate(user)
-        auth.created_at = 1.days.ago
-        auth.save
-        payload = {
-          api_token: auth.token,
-          format: :json }
-
-        put :update, payload
-        expect(response.status).to eq(422) # unprocessable
-
-        data = JSON.parse(response.body)
-        expect(data['message']).to eq('api_token is too old to renew, please log in again')
-      end
-    end # with expired token
   end # update
 
 end

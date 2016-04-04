@@ -19,5 +19,10 @@ class UserAuthToken < ActiveRecord::Base
       at.user_id = user.id
     end
   end
+
+  def self.find_by_token(string)
+    return if string.to_s.empty?
+    where(token: string).first
+  end
   
 end

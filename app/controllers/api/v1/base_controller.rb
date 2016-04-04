@@ -1,28 +1,46 @@
-class Api::V1::BaseController < ActionController::Base
-
-  
+class Api::V1::BaseController < ActionController::Base 
   
   respond_to :json
 
   private
 
-  def find_user_from_token
-    token = params[:api_token]
-    return if token.nil?
+  # helper
+  def with_valid_auth_token
 
-    @auth = UserAuthToken.where(token: token).first
-    return if @auth.nil?
+    api_key = params[:api_token]
+    if api_key.nil?
+      return render status: 401, json: { message: 'Missing api_token' }
+    end
 
-    # expired?
-    @user = @auth.user
+    token = UserAuthToken.where(token: api_key).first
+    if token.nil?
+      return render status: 401, json: { message: 'Invalid api_token' }
+    end
+
+    if not token.renewable?  
+      return render status: 401, json: { message: 'api_token has expired, please log in again' }
+    end
+
+    yield token
   end
   
-  def user_must_be_logged_in
-    return if @user
+  # filter
+  def user_must_be_present
 
-    render status: 401, json: { message: 'Missing api_token' }
+    with_valid_auth_token do |token|
+
+      if token.expired?
+        return render status: 401, json: { message: 'api_token has expired, please renew' }
+      end
+
+      @user = token.user
+      if @user.nil?
+        return render status: 422, json: { message: 'api_token user could not be found' }
+      end
+    end 
   end
 
+  # filter
   def user_must_be_admin
     return if @user.admin
 

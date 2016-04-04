@@ -36,50 +36,73 @@ RSpec.describe Api::V1::BaseController, type: :controller do
     end
   end # basic response
 
-  context 'before filter' do 
-    context 'find_user_from_token' do
+  context 'with_valid_auth_token' do
 
-      controller do
-        before_filter :find_user_from_token
-
-        def index
+    controller do
+      def index
+        with_valid_auth_token do |t|
+          @token = t
           render text: ''
         end
       end
+    end
+    
+    it 'yields control with valid token' do
+      token = UserAuthToken.generate(user)
+      token.save
 
-      context 'without token' do
-        it 'passes control' do
-          get :index
-          expect(response).to be_success
-          expect(assigns[:user]).to be_nil
-        end
-      end
+      payload = {
+        api_token: token.token,
+        format: :json }
 
-      context 'with token' do
-        it 'finds user attached to token' do
+      get :index, payload
 
-          token = UserAuthToken.generate(user)
-          token.save
+      expect(response).to be_success
+      expect(assigns[:token]).to eq(token)
+    end
 
-          payload = {
-            api_token: token.token,
-            format: :json
-          }
+    it 'rejects missing token' do 
+      payload = { format: :json }
+      get :index, payload 
+      expect(response.status).to eq(401)
+      
+      data = JSON.parse(response.body)
+      expect(data['message']).to eq('Missing api_token')
+    end
 
-          get :index, payload
-          expect(response).to be_success
-          expect(assigns[:user]).to eq(user)
-          
-        end
-        
-      end # with token
+    it 'rejects token that does not exist' do
+      payload = { 
+        format: :json,
+        api_token: '1234' }
 
-    end # find_user_from_token
+      get :index, payload 
+      expect(response.status).to eq(401)
+      
+      data = JSON.parse(response.body)
+      expect(data['message']).to eq('Invalid api_token')
+    end
 
-    context 'user_must_be_logged_in' do
+    it 'rejects tokens that have expired' do
+      token = UserAuthToken.generate(user)
+      token.created_at = 10.hours.ago
+      token.save 
+
+      payload = { 
+        format: :json,
+        api_token: token.token }
+
+      get :index, payload 
+      expect(response.status).to eq(401)
+      
+      data = JSON.parse(response.body)
+      expect(data['message']).to eq('api_token has expired, please log in again')
+    end
+  end
+
+  context 'before filter' do 
+    context 'user_must_be_present' do
       controller do
-        before_filter :find_user_from_token
-        before_filter :user_must_be_logged_in
+        before_filter :user_must_be_present
 
         def index
           render text: ''
@@ -112,8 +135,7 @@ RSpec.describe Api::V1::BaseController, type: :controller do
 
     context 'user_must_be_admin' do
       controller do
-        before_filter :find_user_from_token
-        before_filter :user_must_be_logged_in
+        before_filter :user_must_be_present
         before_filter :user_must_be_admin
 
         def index
