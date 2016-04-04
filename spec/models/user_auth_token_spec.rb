@@ -2,13 +2,7 @@ require 'rails_helper'
 
 RSpec.describe UserAuthToken, type: :model do
 
-  let(:user) { 
-    User.create do |u|
-      u.username = 'username'
-      u.email    = 'user@example.com'
-      u.password = 'password'
-    end
-  }
+  include CommonLettings
 
   context '#expired?' do
     it 'is false if record is new' do
