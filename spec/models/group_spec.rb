@@ -13,7 +13,7 @@ RSpec.describe Group, type: :model do
     it 'must be valid' do
       g = Group.new
 
-      # ni;
+      # nil
       g.name = ''
       expect(g.valid?).to be_falsey
 
