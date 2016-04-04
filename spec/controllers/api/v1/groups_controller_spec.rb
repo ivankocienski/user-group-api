@@ -2,28 +2,14 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::GroupsController, type: :controller do
 
-  let(:admin) { 
-    User.create do |u|
-      u.username = 'username'
-      u.email    = 'user@example.com'
-      u.password = 'password'
-      u.admin    = true
-    end
-  }
-    
-  let(:auth_token) {
-    at = UserAuthToken.generate(admin)
-    at.save
-    at
-  }
+  include CommonLettings
 
-  context 'create' do
-
+  context 'create' do 
     context 'with valid input' do
       let(:payload) {{
         group:     { name: 'newgroup' },
         format:    :json,
-        api_token: auth_token.token }}
+        api_token: admin_auth_token.token }}
 
       it 'creates group' do 
         expect {
@@ -46,7 +32,7 @@ RSpec.describe Api::V1::GroupsController, type: :controller do
       it 'returns meaningful info to user' do
         payload = {
           format:    :json ,
-          api_token: auth_token.token }
+          api_token: admin_auth_token.token }
 
         post :create, payload
         expect(response.status).to eq(422) # unprocessable
