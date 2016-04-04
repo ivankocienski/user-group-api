@@ -2,13 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::SessionsController, type: :controller do
 
-  let(:user) { 
-    User.create do |u|
-      u.username = 'username'
-      u.email    = 'user@example.com'
-      u.password = 'password'
-    end
-  }
+  include CommonLettings
 
   context 'create' do
     context 'with valid credentials' do
@@ -17,7 +11,7 @@ RSpec.describe Api::V1::SessionsController, type: :controller do
         payload = {
           auth: {
             username: user.username,
-            password: 'password'
+            password: 'passwordpassword'
           },
           format: :json }
 
@@ -47,10 +41,8 @@ RSpec.describe Api::V1::SessionsController, type: :controller do
   context 'update' do # renew
     context 'with active token' do
       it 'issues new token' do
-        auth = UserAuthToken.generate(user)
-        auth.save
         payload = {
-          api_token: auth.token,
+          api_token: user_auth_token.token,
           format: :json }
 
         put :update, payload
