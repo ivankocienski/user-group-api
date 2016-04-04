@@ -2,6 +2,8 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::UsersController, type: :controller do
 
+  include CommonLettings
+
   describe 'create' do
     context 'with valid input' do
       let(:payload) {{
@@ -50,21 +52,8 @@ RSpec.describe Api::V1::UsersController, type: :controller do
   end # create 
 
   context 'show' do
-    let(:user) { 
-      User.create do |u|
-        u.username = 'username'
-        u.email    = 'user@example.com'
-        u.password = 'password'
-      end
-    }
-    let(:auth_token) {
-      at = UserAuthToken.generate(user)
-      at.save
-      at
-    }
-
     let(:payload) {{
-      api_token: auth_token.token,
+      api_token: user_auth_token.token,
       format: :json }}
 
     it 'returns user details' do 
